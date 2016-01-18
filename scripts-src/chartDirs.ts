@@ -5,6 +5,8 @@ interface IBarChartScope extends ng.IScope{
     keyProp:string;
     valueProp:string[];
     maxValue:string;
+    width:string;
+    height:string;
 }
 
 interface DrawingConfig{
@@ -37,12 +39,14 @@ angular.module('chartDirs',[])
             data:'=',
             keyProp:'@',
             valueProp:'=',
-            maxValue:'@'
+            maxValue:'@',
+            width:'@',
+            height:'@'
         },
         link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes) => {
             var svgElement = d3.select(element[0]).append('svg')
-                .attr('width',1000)
-                .attr('height',500);
+                .attr('width',parseFloat(scope.width))
+                .attr('height',parseFloat(scope.height));
             var scale = d3.scale.linear().domain([0,parseFloat(scope.maxValue)]).range([0,5]);
             scope.$watch('data',(newValue,oldValue) => {
                 if(scope.data){
@@ -55,6 +59,17 @@ angular.module('chartDirs',[])
                     });
                 }
             },true);
+            scope.$watch('valueProp',() => {
+                if(scope.valueProp){
+                    draw({
+                        svgElement:svgElement,
+                        data:scope.data,
+                        keyProp:scope.keyProp,
+                        valueProp:scope.valueProp,
+                        scale:scale
+                    });
+                }
+            });
         }
     }
 });

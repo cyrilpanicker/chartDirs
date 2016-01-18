@@ -10,25 +10,14 @@
 </head>
 <body ng-controller="Controller">
     <button ng-click="changeValues()">Change</button>
-	<div bar-chart 
+	<bar-chart 
         data="data" 
         key-prop="device" 
-        value-prop="['west']"
+        value-prop="propertiesToBePlotted"
         max-value="10"
-    ></div>
-    <br/>
-	<div bar-chart 
-        data="data" 
-        key-prop="device" 
-        value-prop="['east']"
-        max-value="10"
-    ></div>
-    <br/>
-	<div bar-chart 
-        data="data" 
-        key-prop="device" 
-        value-prop="['central']"
-        max-value="10"
-    ></div>
+        width="1000"
+        height="500"
+    >
+    </bar-chart>
 </body>
 </html>

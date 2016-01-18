@@ -5,6 +5,7 @@
 interface IControllerScope extends ng.IScope{
     data:Data[];
     propertiesToBePlotted:string[];
+    changeValues:() => void;
 }
 
 interface Data{
@@ -75,12 +76,22 @@ angular.module('app',['chartDirs'])
         {
             'device':'E',
             'west':4,
-            'central':10,
+            'central':6,
             'east':4
         }
     ];
     
     $scope.data = data;
-    $scope.propertiesToBePlotted = ['east'];
+    $scope.propertiesToBePlotted = ['west'];
+    
+    $scope.changeValues = () => {
+        if($scope.propertiesToBePlotted[0] === 'west'){
+            $scope.propertiesToBePlotted = ['central']
+        }else if($scope.propertiesToBePlotted[0] === 'central'){
+            $scope.propertiesToBePlotted = ['east']
+        }else{
+            $scope.propertiesToBePlotted = ['west']
+        }
+    };
     
 });
