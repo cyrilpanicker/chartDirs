@@ -10,6 +10,25 @@
 </head>
 <body ng-controller="Controller">
     <button ng-click="changeValues()">Change</button>
-	<div bar-chart max-value="1000" values="values"></div>
+	<div bar-chart 
+        data="data" 
+        key-prop="device" 
+        value-prop="['west']"
+        max-value="10"
+    ></div>
+    <br/>
+	<div bar-chart 
+        data="data" 
+        key-prop="device" 
+        value-prop="['east']"
+        max-value="10"
+    ></div>
+    <br/>
+	<div bar-chart 
+        data="data" 
+        key-prop="device" 
+        value-prop="['central']"
+        max-value="10"
+    ></div>
 </body>
 </html>
