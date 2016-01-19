@@ -11,7 +11,7 @@ angular.module('chartDirs', [])
             height: '@'
         },
         link: function (scope, element, attributes) {
-            var data, keyProperty, valueProperties, maxValue, width, height, scale;
+            var data, keyProperty, valueProperties, maxValue, width, height, valueScale, barGroupScale, barScale;
             var assignVariables = function () {
                 data = JSON.parse(scope.data);
                 keyProperty = JSON.parse(scope.keyConfig).name;
@@ -19,7 +19,15 @@ angular.module('chartDirs', [])
                 maxValue = parseFloat(scope.maxValue);
                 width = parseFloat(scope.width);
                 height = parseFloat(scope.height);
-                scale = d3.scale.linear().domain([0, maxValue]).range([0, height]);
+                valueScale = d3.scale.linear()
+                    .domain([0, maxValue])
+                    .range([0, height]);
+                barGroupScale = d3.scale.ordinal()
+                    .domain(data.map(function (datum) { return datum[keyProperty]; }))
+                    .rangeBands([0, width], 0.5);
+                barScale = d3.scale.ordinal()
+                    .domain(valueProperties.map(function (property) { return property.name; }))
+                    .rangeBands([0, barGroupScale.rangeBand()]);
             };
             assignVariables();
             var keyMapper = function (datum, index) {
@@ -29,10 +37,10 @@ angular.module('chartDirs', [])
                 return index * 20;
             };
             var yMapper = function (datum, index) {
-                return height - scale(datum[valueProperty.name]);
+                return height - valueScale(datum.value);
             };
             var heightMapper = function (datum, index) {
-                return scale(datum[valueProperty.name]);
+                return valueScale(datum.value);
             };
             var widthMapper = function (datum, index) {
                 return 10;
@@ -41,15 +49,35 @@ angular.module('chartDirs', [])
                 .attr('width', width)
                 .attr('height', height);
             var draw = function () {
-                var updateSet = svgElement.selectAll('rect').data(data, keyMapper);
-                updateSet.exit().remove();
-                updateSet.enter().append('rect');
-                updateSet
-                    .attr('x', xMapper)
+                var barGroupSet = svgElement.selectAll('.barGroup').data(data);
+                barGroupSet.exit().remove();
+                barGroupSet.enter().append('g').attr('class', 'barGroup');
+                barGroupSet.attr('transform', function (datum) {
+                    return 'translate(' + barGroupScale(datum[keyProperty]) + ',0)';
+                });
+                var barSet = barGroupSet.selectAll('rect').data(function (datum) {
+                    var _ = [];
+                    valueProperties.forEach(function (__) {
+                        _.push({
+                            name: __.name,
+                            value: datum[__.name],
+                            color: __.color
+                        });
+                    });
+                    return _;
+                });
+                barSet.exit().remove();
+                barSet.enter().append('rect');
+                barSet
+                    .attr('x', function (datum) {
+                    return barScale(datum.name);
+                })
                     .attr('y', yMapper)
                     .attr('height', heightMapper)
-                    .attr('width', widthMapper)
-                    .attr('fill', valueProperty.color);
+                    .attr('width', barScale.rangeBand())
+                    .attr('fill', function (datum) {
+                    return datum.color;
+                });
             };
             scope.$watch('data+keyConfig+valuesConfig+maxValue+width+height', function () {
                 if (scope.data && scope.keyConfig && scope.valuesConfig && scope.maxValue && scope.width && scope.height) {

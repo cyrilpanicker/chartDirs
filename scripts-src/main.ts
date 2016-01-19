@@ -88,14 +88,30 @@ angular.module('app',['chartDirs'])
     };
 
     var valuesConfigurations = [
-        [{
-            name:'west',
-            color:'blue'
-        }],
-        [{
-            name:'central',
-            color:'red'
-        }],
+        [
+            {
+                name:'west',
+                color:'blue'
+            },
+            {
+                name:'east',
+                color:'yellow'
+            },
+            {
+                name:'central',
+                color:'red'
+            },
+        ],
+        [
+            {
+                name:'west',
+                color:'blue'
+            },
+            {
+                name:'central',
+                color:'red'
+            }
+        ],
         [{
             name:'east',
             color:'red'
