@@ -4,8 +4,9 @@
 
 interface IControllerScope extends ng.IScope{
     data:Data[];
-    propertiesToBePlotted:string[];
     changeValues:() => void;
+    valuesConfig:{}[];
+    keyConfig:{};
 }
 
 interface Data{
@@ -82,15 +83,34 @@ angular.module('app',['chartDirs'])
     ];
     
     $scope.data = data;
-    $scope.propertiesToBePlotted = ['west'];
+    $scope.keyConfig = {
+        name:'device'
+    };
+
+    var valuesConfigurations = [
+        [{
+            name:'west',
+            color:'blue'
+        }],
+        [{
+            name:'central',
+            color:'red'
+        }],
+        [{
+            name:'east',
+            color:'red'
+        }]
+    ];
     
+    $scope.valuesConfig = valuesConfigurations[0];
+   
     $scope.changeValues = () => {
-        if($scope.propertiesToBePlotted[0] === 'west'){
-            $scope.propertiesToBePlotted = ['central']
-        }else if($scope.propertiesToBePlotted[0] === 'central'){
-            $scope.propertiesToBePlotted = ['east']
-        }else{
-            $scope.propertiesToBePlotted = ['west']
+        if($scope.valuesConfig == valuesConfigurations[0]){
+            $scope.valuesConfig = valuesConfigurations[1];
+        } else if($scope.valuesConfig == valuesConfigurations[1]){
+            $scope.valuesConfig = valuesConfigurations[2];
+        } else if($scope.valuesConfig == valuesConfigurations[2]){
+            $scope.valuesConfig = valuesConfigurations[0];
         }
     };
     

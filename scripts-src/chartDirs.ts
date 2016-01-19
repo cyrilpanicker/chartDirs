@@ -1,73 +1,95 @@
 // /// <reference path="typings/tsd.d.ts" />
 
 interface IBarChartScope extends ng.IScope{
-    data:{}[];
-    keyProp:string;
-    valueProp:string[];
+    data:string;
+    keyConfig:string;
+    valuesConfig:string;
     maxValue:string;
     width:string;
     height:string;
 }
 
-interface DrawingConfig{
-    svgElement:d3.Selection<number>;
-    data:{}[];
-    keyProp:string;
-    valueProp:string[];
-    scale:d3.scale.Linear<number,number>;
+interface ValueProperty{
+    name:string;
+    color:string;
 }
 
 angular.module('chartDirs',[])
 .directive('barChart',() => {
-    
-    var draw = (config:DrawingConfig) => {
-        var updateSet = config.svgElement.selectAll('rect')
-            .data(config.data,datum => datum[config.keyProp]);
-        updateSet.enter().append('rect');
-        updateSet
-            .transition().duration(500)
-            .delay((datum,index) => index*50)
-            .attr('x',(datum,index) => index*100)
-            .attr('y',datum => 500-(config.scale(datum[config.valueProp[0]])*100))
-            .attr('height',datum => config.scale(datum[config.valueProp[0]])*100)
-            .attr('width',50)
-            .attr('fill','blue');
-    };
-    
+
     return {
+
         scope:{
-            data:'=',
-            keyProp:'@',
-            valueProp:'=',
+            data:'@',
+            keyConfig:'@',
+            valuesConfig:'@',
             maxValue:'@',
             width:'@',
             height:'@'
         },
+
         link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes) => {
+            
+            var data:{}[],
+                keyProperty:string,
+                valueProperties:ValueProperty[],
+                maxValue:number,
+                width:number,
+                height:number,
+                scale:d3.scale.Linear<number,number>;
+            
+            var assignVariables = () => {
+                data = JSON.parse(scope.data);
+                keyProperty = JSON.parse(scope.keyConfig).name;
+                valueProperties = JSON.parse(scope.valuesConfig);
+                maxValue = parseFloat(scope.maxValue);
+                width = parseFloat(scope.width)
+                height = parseFloat(scope.height);
+                scale = d3.scale.linear().domain([0,maxValue]).range([0,height]);
+            };
+            
+            assignVariables();
+            
+            var keyMapper = (datum, index) => {
+                return datum[keyProperty];
+            };
+            
+            var xMapper = (datum,index) => {
+                return index*20;
+            };
+            
+            var yMapper = (datum,index) => {
+                return height-scale(datum[valueProperty.name]);
+            };
+            
+            var heightMapper = (datum,index) => {
+                return scale(datum[valueProperty.name]);
+            };
+            
+            var widthMapper = (datum,index) => {
+                return 10;
+            };
+            
             var svgElement = d3.select(element[0]).append('svg')
-                .attr('width',parseFloat(scope.width))
-                .attr('height',parseFloat(scope.height));
-            var scale = d3.scale.linear().domain([0,parseFloat(scope.maxValue)]).range([0,5]);
-            scope.$watch('data',(newValue,oldValue) => {
-                if(scope.data){
-                    draw({
-                        svgElement:svgElement,
-                        data:scope.data,
-                        keyProp:scope.keyProp,
-                        valueProp:scope.valueProp,
-                        scale:scale
-                    });
-                }
-            },true);
-            scope.$watch('valueProp',() => {
-                if(scope.valueProp){
-                    draw({
-                        svgElement:svgElement,
-                        data:scope.data,
-                        keyProp:scope.keyProp,
-                        valueProp:scope.valueProp,
-                        scale:scale
-                    });
+                .attr('width',width)
+                .attr('height',height);
+
+            var draw = () => {
+                var updateSet = svgElement.selectAll('rect').data(data,keyMapper);
+                updateSet.exit().remove();
+                updateSet.enter().append('rect');
+                updateSet
+                    .attr('x',xMapper)
+                    .attr('y',yMapper)
+                    .attr('height',heightMapper)
+                    .attr('width',widthMapper)
+                    .attr('fill',valueProperty.color);
+            };
+
+            scope.$watch('data+keyConfig+valuesConfig+maxValue+width+height',() => {
+                if(scope.data && scope.keyConfig && scope.valuesConfig && scope.maxValue && scope.width && scope.height){
+                    assignVariables();
+                    draw();
                 }
             });
         }

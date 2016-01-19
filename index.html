@@ -11,12 +11,12 @@
 <body ng-controller="Controller">
     <button ng-click="changeValues()">Change</button>
 	<bar-chart 
-        data="data" 
-        key-prop="device" 
-        value-prop="propertiesToBePlotted"
+        data="{{data}}" 
+        key-config="{{keyConfig}}" 
+        values-config="{{valuesConfig}}"
         max-value="10"
         width="1000"
-        height="500"
+        height="200"
     >
     </bar-chart>
 </body>
