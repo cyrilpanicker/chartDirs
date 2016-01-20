@@ -2,48 +2,71 @@
 angular.module('chartDirs', [])
     .directive('barChart', function () {
     return {
-        scope: {
-            data: '@',
-            keyConfig: '@',
-            valuesConfig: '@',
-            maxValue: '@',
-            width: '@',
-            height: '@'
-        },
         link: function (scope, element, attributes) {
-            var data, keyProperty, valueProperties, maxValue, width, height, valueScale, barGroupScale, barScale;
-            var assignVariables = function () {
-                data = JSON.parse(scope.data);
-                keyProperty = JSON.parse(scope.keyConfig).name;
-                valueProperties = JSON.parse(scope.valuesConfig);
-                maxValue = parseFloat(scope.maxValue);
-                width = parseFloat(scope.width);
-                height = parseFloat(scope.height);
+            var attributeList = [
+                'data',
+                'keyConfig',
+                'valuesConfig',
+                'width',
+                'height',
+                'padding'
+            ];
+            var data, keyProperty, valueProperties, maxValue, width, height, padding, valueScale, barGroupScale, barScale;
+            keyProperty = JSON.parse(attributes.keyConfig).name;
+            valueProperties = JSON.parse(attributes.valuesConfig);
+            width = parseFloat(attributes.width);
+            height = parseFloat(attributes.height);
+            padding = parseFloat(attributes.padding);
+            var updateData = function () {
+                data = JSON.parse(attributes.data);
+                maxValue = d3.max(valueProperties.map(function (valueProperty) {
+                    return d3.max(data, function (datum) {
+                        return datum[valueProperty.name];
+                    });
+                }));
                 valueScale = d3.scale.linear()
-                    .domain([0, maxValue])
-                    .range([0, height]);
+                    .range([0, height])
+                    .domain([0, maxValue]);
                 barGroupScale = d3.scale.ordinal()
-                    .domain(data.map(function (datum) { return datum[keyProperty]; }))
-                    .rangeBands([0, width], 0.5);
+                    .rangeBands([0, width], padding)
+                    .domain(data.map(function (datum) {
+                    return datum[keyProperty];
+                }));
                 barScale = d3.scale.ordinal()
-                    .domain(valueProperties.map(function (property) { return property.name; }))
-                    .rangeBands([0, barGroupScale.rangeBand()]);
+                    .rangeBands([0, barGroupScale.rangeBand()])
+                    .domain(valueProperties.map(function (property) {
+                    return property.name;
+                }));
             };
-            assignVariables();
+            var barGroupTranslateMapper = function (barGroupDatum) {
+                return 'translate(' + barGroupScale(barGroupDatum[keyProperty]) + ',0)';
+            };
+            var barDataMapper = function (barGroupDatum) {
+                return valueProperties.map(function (valueProperty) {
+                    return {
+                        name: valueProperty.name,
+                        value: barGroupDatum[valueProperty.name],
+                        color: valueProperty.color
+                    };
+                });
+            };
             var keyMapper = function (datum, index) {
                 return datum[keyProperty];
             };
-            var xMapper = function (datum, index) {
-                return index * 20;
+            var xMapper = function (barDatum) {
+                return barScale(barDatum.name);
             };
-            var yMapper = function (datum, index) {
-                return height - valueScale(datum.value);
+            var yMapper = function (barDatum) {
+                return height - valueScale(barDatum.value);
             };
-            var heightMapper = function (datum, index) {
-                return valueScale(datum.value);
+            var heightMapper = function (barDatum) {
+                return valueScale(barDatum.value);
             };
-            var widthMapper = function (datum, index) {
-                return 10;
+            var widthMapper = function () {
+                return barScale.rangeBand();
+            };
+            var colorMapper = function (barDatum) {
+                return barDatum.color;
             };
             var svgElement = d3.select(element[0]).append('svg')
                 .attr('width', width)
@@ -52,36 +75,25 @@ angular.module('chartDirs', [])
                 var barGroupSet = svgElement.selectAll('.barGroup').data(data);
                 barGroupSet.exit().remove();
                 barGroupSet.enter().append('g').attr('class', 'barGroup');
-                barGroupSet.attr('transform', function (datum) {
-                    return 'translate(' + barGroupScale(datum[keyProperty]) + ',0)';
-                });
-                var barSet = barGroupSet.selectAll('rect').data(function (datum) {
-                    var _ = [];
-                    valueProperties.forEach(function (__) {
-                        _.push({
-                            name: __.name,
-                            value: datum[__.name],
-                            color: __.color
-                        });
-                    });
-                    return _;
-                });
+                barGroupSet.attr('transform', barGroupTranslateMapper);
+                var barSet = barGroupSet.selectAll('rect').data(barDataMapper);
                 barSet.exit().remove();
                 barSet.enter().append('rect');
                 barSet
-                    .attr('x', function (datum) {
-                    return barScale(datum.name);
-                })
+                    .attr('x', xMapper)
                     .attr('y', yMapper)
                     .attr('height', heightMapper)
-                    .attr('width', barScale.rangeBand())
-                    .attr('fill', function (datum) {
-                    return datum.color;
+                    .attr('width', widthMapper)
+                    .attr('fill', colorMapper);
+            };
+            var emptyAttributeExists = function () {
+                return attributeList.some(function (attribute) {
+                    return attributes[attribute] === '';
                 });
             };
-            scope.$watch('data+keyConfig+valuesConfig+maxValue+width+height', function () {
-                if (scope.data && scope.keyConfig && scope.valuesConfig && scope.maxValue && scope.width && scope.height) {
-                    assignVariables();
+            attributes.$observe('data', function () {
+                if (!emptyAttributeExists()) {
+                    updateData();
                     draw();
                 }
             });

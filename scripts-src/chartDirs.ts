@@ -4,9 +4,9 @@ interface IBarChartScope extends ng.IScope{
     data:string;
     keyConfig:string;
     valuesConfig:string;
-    maxValue:string;
     width:string;
     height:string;
+    padding:string;
 }
 
 interface ValueProperty{
@@ -14,21 +14,30 @@ interface ValueProperty{
     color:string;
 }
 
+interface BarChartAttributes extends ng.IAttributes{
+    data:string;
+    keyConfig:string;
+    valuesConfig:string;
+    width:string;
+    height:string;
+    padding:string;
+}
+
 angular.module('chartDirs',[])
 .directive('barChart',() => {
 
     return {
 
-        scope:{
-            data:'@',
-            keyConfig:'@',
-            valuesConfig:'@',
-            maxValue:'@',
-            width:'@',
-            height:'@'
-        },
-
-        link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes) => {
+        link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes:BarChartAttributes) => {
+            
+            var attributeList = [
+                'data',
+                'keyConfig',
+                'valuesConfig',
+                'width',
+                'height',
+                'padding'
+            ];
             
             var data:{}[],
                 keyProperty:string,
@@ -36,48 +45,81 @@ angular.module('chartDirs',[])
                 maxValue:number,
                 width:number,
                 height:number,
+                padding:number,
                 valueScale:d3.scale.Linear<number,number>,
                 barGroupScale:d3.scale.Ordinal<string,number>,
                 barScale:d3.scale.Ordinal<string,number>;
+                
+            keyProperty = JSON.parse(attributes.keyConfig).name;
+            valueProperties = JSON.parse(attributes.valuesConfig);
+            width = parseFloat(attributes.width)
+            height = parseFloat(attributes.height);
+            padding = parseFloat(attributes.padding);
             
-            var assignVariables = () => {
-                data = JSON.parse(scope.data);
-                keyProperty = JSON.parse(scope.keyConfig).name;
-                valueProperties = JSON.parse(scope.valuesConfig);
-                maxValue = parseFloat(scope.maxValue);
-                width = parseFloat(scope.width)
-                height = parseFloat(scope.height);
+            var updateData = () => {
+
+                data = JSON.parse(attributes.data);
+                
+                maxValue = d3.max(valueProperties.map((valueProperty) => {
+                    return d3.max(data,(datum) => {
+                        return datum[valueProperty.name];
+                    });
+                }));
+
                 valueScale = d3.scale.linear()
-                    .domain([0,maxValue])
-                    .range([0,height]);
+                    .range([0,height])
+                    .domain([0,maxValue]);
+
                 barGroupScale = d3.scale.ordinal()
-                    .domain(data.map(datum => datum[keyProperty]))
-                    .rangeBands([0,width],0.5);
+                    .rangeBands([0,width],padding)
+                    .domain(data.map(datum => {
+                        return datum[keyProperty];
+                    }));
+
                 barScale = d3.scale.ordinal()
-                    .domain(valueProperties.map(property => property.name))
-                    .rangeBands([0,barGroupScale.rangeBand()]);
+                    .rangeBands([0,barGroupScale.rangeBand()])
+                    .domain(valueProperties.map(property => {
+                        return property.name;
+                    }));
+
             };
             
-            assignVariables();
+            var barGroupTranslateMapper = (barGroupDatum) => {
+                return 'translate('+barGroupScale(barGroupDatum[keyProperty])+',0)';
+            };
+            
+            var barDataMapper = (barGroupDatum) => {
+                return valueProperties.map(valueProperty => {
+                    return {
+                        name:valueProperty.name,
+                        value:barGroupDatum[valueProperty.name],
+                        color:valueProperty.color
+                    };
+                });
+            };
             
             var keyMapper = (datum, index) => {
                 return datum[keyProperty];
             };
             
-            var xMapper = (datum,index) => {
-                return index*20;
+            var xMapper = (barDatum) => {
+                return barScale(barDatum.name);
             };
             
-            var yMapper = (datum,index) => {
-                return height-valueScale(datum.value);
+            var yMapper = (barDatum) => {
+                return height-valueScale(barDatum.value);
             };
             
-            var heightMapper = (datum,index) => {
-                return valueScale(datum.value);
+            var heightMapper = (barDatum) => {
+                return valueScale(barDatum.value);
             };
             
-            var widthMapper = (datum,index) => {
-                return 10;
+            var widthMapper = () => {
+                return barScale.rangeBand();
+            };
+            
+            var colorMapper = (barDatum) => {
+                return barDatum.color;
             };
             
             var svgElement = d3.select(element[0]).append('svg')
@@ -85,43 +127,37 @@ angular.module('chartDirs',[])
                 .attr('height',height);
 
             var draw = () => {
+
                 var barGroupSet = svgElement.selectAll('.barGroup').data(data);
                 barGroupSet.exit().remove();
                 barGroupSet.enter().append('g').attr('class','barGroup');
-                barGroupSet.attr('transform',datum => {
-                    return 'translate('+barGroupScale(datum[keyProperty])+',0)';
-                });
-                var barSet = barGroupSet.selectAll('rect').data(datum => {
-                    var _ = [];
-                    valueProperties.forEach(__ => {
-                        _.push({
-                            name:__.name,
-                            value:datum[__.name],
-                            color:__.color
-                        });
-                    });
-                    return _;
-                });
+                barGroupSet.attr('transform',barGroupTranslateMapper);
+
+                var barSet = barGroupSet.selectAll('rect').data(barDataMapper);
                 barSet.exit().remove();
                 barSet.enter().append('rect');
                 barSet
-                    .attr('x',datum => {
-                        return barScale(datum.name);
-                    })
+                    .attr('x',xMapper)
                     .attr('y',yMapper)
                     .attr('height',heightMapper)
-                    .attr('width',barScale.rangeBand())
-                    .attr('fill',datum => {
-                        return datum.color;
-                    });
-            };
+                    .attr('width',widthMapper)
+                    .attr('fill',colorMapper);
 
-            scope.$watch('data+keyConfig+valuesConfig+maxValue+width+height',() => {
-                if(scope.data && scope.keyConfig && scope.valuesConfig && scope.maxValue && scope.width && scope.height){
-                    assignVariables();
+            };
+            
+            var emptyAttributeExists = () => {
+                return attributeList.some((attribute) => {
+                    return attributes[attribute] === '';
+                })
+            };
+            
+            attributes.$observe('data',() => {
+                if(!emptyAttributeExists()){
+                    updateData();
                     draw();
                 }
             });
+           
         }
     }
 });

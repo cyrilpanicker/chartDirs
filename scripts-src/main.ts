@@ -17,7 +17,7 @@ interface Data{
 }
 
 angular.module('app',['chartDirs'])
-.controller('Controller',($scope:IControllerScope,$interval) => {
+.controller('Controller',($scope:IControllerScope,$interval,$timeout:ng.ITimeoutService) => {
     
     var data = [
         {
@@ -29,7 +29,7 @@ angular.module('app',['chartDirs'])
         {
             'device':'Notebooks',
             'west':3,
-            'central':2,
+            'central':5,
             'east':4
         },
         {
@@ -41,7 +41,7 @@ angular.module('app',['chartDirs'])
         {
             'device':'Tablets',
             'west':7,
-            'central':2,
+            'central':6,
             'east':2
         },
         {
@@ -49,36 +49,6 @@ angular.module('app',['chartDirs'])
             'west':2,
             'central':1,
             'east':5
-        },
-        {
-            'device':'A',
-            'west':7,
-            'central':2,
-            'east':2
-        },
-        {
-            'device':'B',
-            'west':2,
-            'central':1,
-            'east':5
-        },
-        {
-            'device':'C',
-            'west':7,
-            'central':2,
-            'east':2
-        },
-        {
-            'device':'D',
-            'west':7,
-            'central':2,
-            'east':2
-        },
-        {
-            'device':'E',
-            'west':4,
-            'central':6,
-            'east':4
         }
     ];
     
@@ -121,13 +91,12 @@ angular.module('app',['chartDirs'])
     $scope.valuesConfig = valuesConfigurations[0];
    
     $scope.changeValues = () => {
-        if($scope.valuesConfig == valuesConfigurations[0]){
-            $scope.valuesConfig = valuesConfigurations[1];
-        } else if($scope.valuesConfig == valuesConfigurations[1]){
-            $scope.valuesConfig = valuesConfigurations[2];
-        } else if($scope.valuesConfig == valuesConfigurations[2]){
-            $scope.valuesConfig = valuesConfigurations[0];
-        }
+        $scope.data.push({
+            'device':'Laptops',
+            'west':6,
+            'central':1,
+            'east':2
+        });
     };
     
 });
