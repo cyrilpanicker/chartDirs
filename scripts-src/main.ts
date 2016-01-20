@@ -1,20 +1,5 @@
-// /// <reference path="typings/tsd.d.ts" />
-
-
-
-interface IControllerScope extends ng.IScope{
-    data:Data[];
-    changeValues:() => void;
-    valuesConfig:{}[];
-    keyConfig:{};
-}
-
-interface Data{
-    device:string;
-    west:number;
-    east:number;
-    central:number;
-}
+/// <reference path="typings/tsd.d.ts" />
+/// <reference path="customTypes.d.ts" />
 
 angular.module('app',['chartDirs'])
 .controller('Controller',($scope:IControllerScope,$interval,$timeout:ng.ITimeoutService) => {
@@ -22,33 +7,33 @@ angular.module('app',['chartDirs'])
     var data = [
         {
             'device':'Desktops',
-            'west':5,
-            'central':2,
+            'west':8,
+            'central':5,
             'east':3
         },
         {
             'device':'Notebooks',
-            'west':3,
-            'central':5,
+            'west':7,
+            'central':6,
             'east':4
         },
         {
             'device':'AIO',
-            'west':4,
-            'central':3,
+            'west':9,
+            'central':7,
             'east':4
         },
         {
             'device':'Tablets',
-            'west':7,
-            'central':6,
+            'west':6,
+            'central':4,
             'east':2
         },
         {
             'device':'Phones',
-            'west':2,
-            'central':1,
-            'east':5
+            'west':10,
+            'central':5,
+            'east':3
         }
     ];
     
@@ -64,13 +49,14 @@ angular.module('app',['chartDirs'])
                 color:'blue'
             },
             {
-                name:'east',
-                color:'yellow'
-            },
-            {
                 name:'central',
                 color:'red'
             },
+            {
+                name:'east',
+                color:'yellow'
+            },
+
         ],
         [
             {
@@ -94,7 +80,7 @@ angular.module('app',['chartDirs'])
         $scope.data.push({
             'device':'Laptops',
             'west':6,
-            'central':1,
+            'central':3,
             'east':2
         });
     };
