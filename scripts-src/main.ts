@@ -46,15 +46,15 @@ angular.module('app',['chartDirs'])
     $scope.valuesConfig = [
         {
             name:'west',
-            color:'blue'
+            color:'#3232ff'
         },
         {
             name:'central',
-            color:'red'
+            color:'#7f7fff'
         },
         {
             name:'east',
-            color:'yellow'
+            color:'#ccccff'
         }
      ];
    
