@@ -38,51 +38,38 @@ angular.module('app',['chartDirs'])
     ];
     
     $scope.data = data;
+    
     $scope.keyConfig = {
         name:'device'
     };
 
-    var valuesConfigurations = [
-        [
-            {
-                name:'west',
-                color:'blue'
-            },
-            {
-                name:'central',
-                color:'red'
-            },
-            {
-                name:'east',
-                color:'yellow'
-            },
-
-        ],
-        [
-            {
-                name:'west',
-                color:'blue'
-            },
-            {
-                name:'central',
-                color:'red'
-            }
-        ],
-        [{
-            name:'east',
+    $scope.valuesConfig = [
+        {
+            name:'west',
+            color:'blue'
+        },
+        {
+            name:'central',
             color:'red'
-        }]
-    ];
-    
-    $scope.valuesConfig = valuesConfigurations[0];
+        },
+        {
+            name:'east',
+            color:'yellow'
+        }
+     ];
    
     $scope.changeValues = () => {
-        $scope.data.push({
-            'device':'Laptops',
-            'west':6,
-            'central':3,
-            'east':2
-        });
+        if($scope.data.length === 5){
+            $scope.data.push({
+                'device':'Laptops',
+                'west':6,
+                'central':3,
+                'east':2
+            });
+        }else{
+            $scope.data.pop();
+        }
+
     };
     
 });

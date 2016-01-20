@@ -1,3 +1,12 @@
 bar-chart,[bar-chart]{
     display: table;
 }
+
+.chart{
+    width: 600px;
+    height: 300px;
+}
+
+.right{
+    float:right;
+}

@@ -10,26 +10,60 @@
     <script src="scripts/main.js"></script>
 </head>
 <body ng-controller="Controller">
-    <button ng-click="changeValues()">Change</button>
-	<bar-chart 
-        data="{{data}}" 
-        key-config="{{keyConfig}}" 
-        values-config="{{valuesConfig}}"
-        width="500"
-        height="300"
-        padding="0.4"
-        stack-orientation="side"
-    >
-    </bar-chart>
-	<bar-chart 
-        data="{{data}}" 
-        key-config="{{keyConfig}}" 
-        values-config="{{valuesConfig}}"
-        width="500"
-        height="300"
-        padding="0.4"
-        stack-orientation="behind"
-    >
-    </bar-chart>
+    <div>
+        <button ng-click="changeValues()">Change</button>
+    </div>
+    <div class="chart right">
+        <bar-chart 
+            data="{{data}}" 
+            key-config="{{keyConfig}}" 
+            values-config="{{valuesConfig}}"
+            width="600"
+            height="300"
+            padding="0.6"
+            stack-orientation="behind"
+            orientation="vertical"
+        >
+        </bar-chart>
+    </div>
+    <div class="chart">
+        <bar-chart 
+            data="{{data}}" 
+            key-config="{{keyConfig}}" 
+            values-config="{{valuesConfig}}"
+            width="600"
+            height="300"
+            padding="0.4"
+            stack-orientation="side"
+            orientation="vertical"
+        >
+        </bar-chart>
+    </div>
+    <div class="chart right">
+        <bar-chart 
+            data="{{data}}" 
+            key-config="{{keyConfig}}" 
+            values-config="{{valuesConfig}}"
+            width="600"
+            height="300"
+            padding="0.4"
+            stack-orientation="side"
+            orientation="horizontal"
+        >
+        </bar-chart>
+    </div>
+    <div class="chart">
+        <bar-chart 
+            data="{{data}}" 
+            key-config="{{keyConfig}}" 
+            values-config="{{valuesConfig}}"
+            width="600"
+            height="300"
+            padding="0.4"
+            stack-orientation="behind"
+            orientation="horizontal"
+        >
+        </bar-chart>
+    </div>
 </body>
 </html>

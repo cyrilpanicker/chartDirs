@@ -22,6 +22,7 @@ interface BarChartAttributes extends ng.IAttributes{
     height:string;
     padding:string;
     stackOrientation:string;
+    orientation:string;
 }
 
 interface IControllerScope extends ng.IScope{

@@ -14,7 +14,8 @@ angular.module('chartDirs')
                 'width',
                 'height',
                 'padding',
-                'stackOrientation'
+                'stackOrientation',
+                'orientation'
             ];
             
             var data:{}[],
@@ -25,6 +26,7 @@ angular.module('chartDirs')
                 height:number,
                 padding:number,
                 stackOrientation:string,
+                orientation:string,
                 valueScale:d3.scale.Linear<number,number>,
                 barGroupScale:d3.scale.Ordinal<string,number>,
                 barScale:d3.scale.Ordinal<string,number>;
@@ -35,6 +37,7 @@ angular.module('chartDirs')
             height = parseFloat(attributes.height);
             padding = parseFloat(attributes.padding);
             stackOrientation = attributes.stackOrientation;
+            orientation = attributes.orientation;
             
             var updateData = () => {
 
@@ -46,15 +49,28 @@ angular.module('chartDirs')
                     });
                 }));
 
-                valueScale = d3.scale.linear()
-                    .range([0,height])
-                    .domain([maxValue,0]);
+                valueScale = d3.scale.linear();
+                if(orientation === 'horizontal'){
+                    valueScale.domain([0,maxValue]).range([0,width]);
+                }else if(orientation === 'vertical'){
+                    valueScale.domain([maxValue,0]).range([0,height]);
+                }
 
-                barGroupScale = d3.scale.ordinal()
-                    .rangeBands([0,width],padding)
-                    .domain(data.map(datum => {
-                        return datum[keyProperty];
-                    }));
+                barGroupScale = d3.scale.ordinal<string,number>();
+                if(orientation === 'horizontal'){
+                    barGroupScale
+                        .domain(data.map(datum => {
+                            return datum[keyProperty];
+                        }))
+                        .rangeBands([0,height],padding);
+                }else if(orientation === 'vertical'){
+                    barGroupScale
+                        .domain(data.map(datum => {
+                            return datum[keyProperty];
+                        }))
+                        .rangeBands([0,width],padding);
+                }
+
 
                 if(stackOrientation === 'behind'){
                     barScale = barGroupScale;
@@ -70,7 +86,11 @@ angular.module('chartDirs')
             };
             
             var barGroupTranslateMapper = (barGroupDatum) => {
-                return 'translate('+barGroupScale(barGroupDatum[keyProperty])+',0)';
+                if(orientation === 'horizontal'){
+                    return 'translate(0,'+barGroupScale(barGroupDatum[keyProperty])+')';
+                }else if(orientation === 'vertical'){
+                    return 'translate('+barGroupScale(barGroupDatum[keyProperty])+',0)';
+                }
             };
             
             var barDataMapper = (barGroupDatum) => {
@@ -94,19 +114,35 @@ angular.module('chartDirs')
             };
             
             var xMapper = (barDatum) => {
-                return barScale(barDatum.name);
+                if(orientation === 'horizontal'){
+                    return 0;
+                }else if(orientation === 'vertical'){
+                    return barScale(barDatum.name);
+                }
             };
             
             var yMapper = (barDatum) => {
-                return valueScale(barDatum.value);
+                if(orientation === 'horizontal'){
+                    return barScale(barDatum.name);
+                }else if(orientation === 'vertical'){
+                    return valueScale(barDatum.value);
+                }
             };
             
             var heightMapper = (barDatum) => {
-                return height-valueScale(barDatum.value);
+                if(orientation === 'horizontal'){
+                    return barScale.rangeBand();
+                }else if(orientation === 'vertical'){
+                    return height-valueScale(barDatum.value);
+                }
             };
             
-            var widthMapper = () => {
-                return barScale.rangeBand();
+            var widthMapper = (barDatum) => {
+                if(orientation === 'horizontal'){
+                    return valueScale(barDatum.value);
+                }else if(orientation === 'vertical'){
+                    return barScale.rangeBand();
+                }
             };
             
             var colorMapper = (barDatum) => {
