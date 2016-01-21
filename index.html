@@ -20,8 +20,8 @@
             values-config="{{valuesConfig}}"
             width="600"
             height="300"
-            padding="0.6"
-            stack-orientation="behind"
+            padding = "0.6"
+            type="stacked"
             orientation="vertical"
         >
         </bar-chart>
@@ -34,20 +34,20 @@
             width="600"
             height="300"
             padding="0.4"
-            stack-orientation="side"
+            type="grouped"
             orientation="vertical"
         >
         </bar-chart>
     </div>
     <div class="chart right">
         <bar-chart 
-            data="{{data}}" 
+            data="{{data}}"
             key-config="{{keyConfig}}" 
             values-config="{{valuesConfig}}"
             width="600"
             height="300"
             padding="0.4"
-            stack-orientation="side"
+            type="grouped"
             orientation="horizontal"
         >
         </bar-chart>
@@ -60,7 +60,7 @@
             width="600"
             height="300"
             padding="0.4"
-            stack-orientation="behind"
+            type="stacked"
             orientation="horizontal"
         >
         </bar-chart>

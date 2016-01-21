@@ -21,7 +21,7 @@ interface BarChartAttributes extends ng.IAttributes{
     width:string;
     height:string;
     padding:string;
-    stackOrientation:string;
+    type:string;
     orientation:string;
 }
 

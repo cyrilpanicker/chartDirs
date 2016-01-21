@@ -1,5 +1,6 @@
 /// <reference path="typings/tsd.d.ts" />
 /// <reference path="customTypes.d.ts" />
+
 angular.module('chartDirs')
 .directive('barChart',() => {
 
@@ -7,82 +8,139 @@ angular.module('chartDirs')
 
         link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes:BarChartAttributes) => {
             
-            var attributeList = [
-                'data',
-                'keyConfig',
-                'valuesConfig',
-                'width',
-                'height',
-                'padding',
-                'stackOrientation',
-                'orientation'
-            ];
+                // 'data',
+                // 'keyConfig',
+                // 'valuesConfig',
+                // 'width',
+                // 'height',
+                // 'padding' => 0 to 1  => default 0,
+                // 'type'  => [grouped,stacked] => default grouped
+                // 'orientation' => [vertical,horizontal] => default vertical
             
-            var data:{}[],
+            var data:Data[],
                 keyProperty:string,
                 valueProperties:ValueProperty[],
                 maxValue:number,
                 width:number,
                 height:number,
                 padding:number,
-                stackOrientation:string,
+                type:string,
                 orientation:string,
                 valueScale:d3.scale.Linear<number,number>,
                 barGroupScale:d3.scale.Ordinal<string,number>,
-                barScale:d3.scale.Ordinal<string,number>;
+                barScale:d3.scale.Ordinal<string,number>,
+                svgElement:d3.Selection<Data>;
                 
-            keyProperty = JSON.parse(attributes.keyConfig).name;
-            valueProperties = JSON.parse(attributes.valuesConfig);
-            width = parseFloat(attributes.width)
-            height = parseFloat(attributes.height);
-            padding = parseFloat(attributes.padding);
-            stackOrientation = attributes.stackOrientation;
-            orientation = attributes.orientation;
+            var assignWidthAndHeightProperties = () => {
+                height = parseFloat(attributes.height);
+                width = parseFloat(attributes.width);
+                if(isNaN(height)){
+                     throw 'empty or invalid height provided';
+                };
+                if(isNaN(width)){
+                    throw 'empty or invalid width provided';
+                }
+            };
+            
+            var assignOptionalProperties = () => {
+                padding = !attributes.padding || isNaN(parseFloat(attributes.padding)) ? 0 :  parseFloat(attributes.padding);
+                orientation = !attributes.orientation || ['horizontal','vertical'].indexOf(attributes.orientation) === -1 ? 'vertical' : attributes.orientation;
+                type = !attributes.type || ['grouped','stacked'].indexOf(attributes.type) === -1 ? 'grouped' : attributes.type;
+            };
+            
+            var createScales = () => {
+                valueScale = d3.scale.linear();
+                barGroupScale = d3.scale.ordinal<string,number>();
+                barScale = d3.scale.ordinal<string,number>();
+            };
+            
+            var assignKeyProperty = () => {
+                try{
+                    if(!attributes.keyConfig){
+                        throw 'empty "key-config" provided';
+                    }
+                    keyProperty = JSON.parse(attributes.keyConfig).name;
+                    if(!keyProperty){
+                        throw '"key-config" does not have name property';
+                    }
+                }catch(exception){
+                    throw 'empty or invalid "key-config" provided : \n'+exception;
+                }
+            };
+            
+            var assignValueProperties = () => {
+                try{
+                    if(!attributes.valuesConfig){
+                        throw 'empty "values-config" provided';
+                    }
+                    valueProperties = JSON.parse(attributes.valuesConfig);
+                    if (!Array.isArray(valueProperties)){
+                        throw '"values-config" should be an array';
+                    }
+                    if(!valueProperties.every(valueProperty => {
+                        return ('name' in valueProperty);
+                    })){
+                        throw '"name" property missing in value for "values-config"';
+                    }
+                    if(!valueProperties.every(valueProperty => {
+                        return ('color' in valueProperty);
+                    })){
+                        throw '"color" property missing in value for "values-config"';
+                    }
+                }catch(exception){
+                    throw 'empty or invalid "values-config" provided : \n'+exception;
+                }
+            };
+            
+            var createSvg = () => {
+                svgElement = d3.select(element[0]).append('svg')
+                    .attr('width',width)
+                    .attr('height',height);
+            };
             
             var updateData = () => {
-
                 data = JSON.parse(attributes.data);
-
                 maxValue = d3.max(valueProperties.map((valueProperty) => {
                     return d3.max(data,(datum) => {
                         return datum[valueProperty.name];
                     });
                 }));
-
-                valueScale = d3.scale.linear();
+            };
+            
+            var updateValueScale = () => {
                 if(orientation === 'horizontal'){
                     valueScale.domain([0,maxValue]).range([0,width]);
                 }else if(orientation === 'vertical'){
                     valueScale.domain([maxValue,0]).range([0,height]);
                 }
-
-                barGroupScale = d3.scale.ordinal<string,number>();
+            };
+            
+            var updateBarGroupScale = () => {
                 if(orientation === 'horizontal'){
                     barGroupScale
+                        .rangeBands([0,height],padding)
                         .domain(data.map(datum => {
                             return datum[keyProperty];
-                        }))
-                        .rangeBands([0,height],padding);
+                        }));
                 }else if(orientation === 'vertical'){
                     barGroupScale
+                        .rangeBands([0,width],padding)
                         .domain(data.map(datum => {
                             return datum[keyProperty];
-                        }))
-                        .rangeBands([0,width],padding);
+                        }));
                 }
-
-
-                if(stackOrientation === 'behind'){
+            };
+            
+            var updateBarScale = () => {
+                if(type === 'stacked'){
                     barScale = barGroupScale;
-                } else if(stackOrientation === 'side'){
-                    barScale = d3.scale.ordinal()
+                } else if(type === 'grouped'){
+                    barScale
                         .rangeBands([0,barGroupScale.rangeBand()])
                         .domain(valueProperties.map(property => {
                             return property.name;
                         }));
                 }
-
-
             };
             
             var barGroupTranslateMapper = (barGroupDatum) => {
@@ -101,7 +159,7 @@ angular.module('chartDirs')
                         color:valueProperty.color
                     };
                 });
-                if(stackOrientation === 'behind'){
+                if(type === 'stacked'){
                     barDatumArray.sort((datumA,datumB) => {
                         return datumB.value - datumA.value;
                     });
@@ -148,10 +206,6 @@ angular.module('chartDirs')
             var colorMapper = (barDatum) => {
                 return barDatum.color;
             };
-            
-            var svgElement = d3.select(element[0]).append('svg')
-                .attr('width',width)
-                .attr('height',height);
 
             var draw = () => {
 
@@ -172,18 +226,23 @@ angular.module('chartDirs')
 
             };
             
-            var emptyAttributeExists = () => {
-                return attributeList.some((attribute) => {
-                    return attributes[attribute] === '';
-                })
-            };
-            
-            attributes.$observe('data',() => {
-                if(!emptyAttributeExists()){
-                    updateData();
-                    draw();
-                }
-            });
+            (function(){
+                assignWidthAndHeightProperties();
+                assignOptionalProperties();
+                createScales();
+                assignKeyProperty();
+                assignValueProperties();
+                createSvg();
+                attributes.$observe('data',() => {
+                    if(attributes.data){
+                        updateData();
+                        updateValueScale();
+                        updateBarGroupScale();
+                        updateBarScale();
+                        draw();
+                    }
+                });
+            })();
            
         }
     }
