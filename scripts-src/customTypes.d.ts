@@ -38,3 +38,12 @@ interface Data{
     east:number;
     central:number;
 }
+
+interface KeyConfig{
+    name:string;
+}
+
+interface ValueConfig{
+    name:string;
+    color:string;
+}

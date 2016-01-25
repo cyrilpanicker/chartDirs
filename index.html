@@ -5,8 +5,9 @@
     <link rel="stylesheet" href="styles/main.css">
     <script src="libs/d3/d3.min.js"></script>
     <script src="libs/angular/angular.min.js"></script>
-	<script src="scripts/chartDirs.js"></script>
-    <script src="scripts/barChart.js"></script>
+    <script src="scripts/plugins/barChart.js"></script>
+    <script src="scripts/chartDirs/chartDirs.js"></script>
+    <script src="scripts/chartDirs/barChart.js"></script>
     <script src="scripts/main.js"></script>
 </head>
 <body ng-controller="Controller">
@@ -14,7 +15,7 @@
         <button ng-click="changeValues()">Change</button>
     </div>
     <div class="chart right">
-        <bar-chart 
+        <svg bar-chart 
             data="{{data}}" 
             key-config="{{keyConfig}}" 
             values-config="{{valuesConfig}}"
@@ -24,10 +25,10 @@
             type="stacked"
             orientation="vertical"
         >
-        </bar-chart>
+        </svg>
     </div>
     <div class="chart">
-        <bar-chart 
+        <svg bar-chart 
             data="{{data}}" 
             key-config="{{keyConfig}}" 
             values-config="{{valuesConfig}}"
@@ -37,10 +38,10 @@
             type="grouped"
             orientation="vertical"
         >
-        </bar-chart>
+        </svg>
     </div>
     <div class="chart right">
-        <bar-chart 
+        <svg bar-chart
             data="{{data}}"
             key-config="{{keyConfig}}" 
             values-config="{{valuesConfig}}"
@@ -50,11 +51,11 @@
             type="grouped"
             orientation="horizontal"
         >
-        </bar-chart>
+        </svg>
     </div>
     <div class="chart">
-        <bar-chart 
-            data="{{data}}" 
+        <svg bar-chart
+            data="{{data}}"
             key-config="{{keyConfig}}" 
             values-config="{{valuesConfig}}"
             width="600"
@@ -63,7 +64,7 @@
             type="stacked"
             orientation="horizontal"
         >
-        </bar-chart>
+        </svg>
     </div>
 </body>
 </html>
