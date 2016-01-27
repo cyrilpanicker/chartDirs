@@ -107,7 +107,8 @@ angular.module('chartDirs')
                             height,
                             padding,                            
                             type,
-                            curveTension                        );
+                            curveTension
+                        );
                     }
                 });
 
