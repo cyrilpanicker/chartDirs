@@ -8,7 +8,7 @@ d3.selection.prototype.barChart = function(data:{}[],
     width:number,height:number,
     padding:number,type:string,orientation:string){
         
-    var self:d3.Selection<any> = this;
+    var selection:d3.Selection<any> = this;
     var maxValue:number;
     var valueScale:d3.scale.Linear<number,number>;
     var barGroupScale:d3.scale.Ordinal<string,number>;
@@ -135,7 +135,7 @@ d3.selection.prototype.barChart = function(data:{}[],
         updateBarGroupScale();
         updateBarScale();
 
-        barGroupSet = self.selectAll('.barGroup').data(data);
+        barGroupSet = selection.selectAll('.barGroup').data(data);
         barGroupSet.exit().remove();
         barGroupSet.enter().append('g').attr('class','barGroup');
         barGroupSet.attr('transform',barGroupTranslateMapper);
@@ -152,5 +152,5 @@ d3.selection.prototype.barChart = function(data:{}[],
 
     })();
 
-    return self;
+    return selection;
 };
