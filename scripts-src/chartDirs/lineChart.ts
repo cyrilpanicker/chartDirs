@@ -2,17 +2,16 @@
 /// <reference path="../customTypes.d.ts" />
 
 angular.module('chartDirs')
-.directive('barChart',() => {
+.directive('lineChart',() => {
     return {
-        
-        link : function(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes:BarChartAttributes){
+        link:(scope:IBarChartScope, element:ng.IAugmentedJQuery, attributes:LineChartAttributes) => {
             
             var data:{}[];
             var height:number;
             var width:number;
-            var padding:number;
-            var orientation:string;
             var type:string;
+            var curveTension:number;
+            var padding:number;
             var keyProperty:string;
             var valueProperties:ValueProperty[];
             
@@ -29,8 +28,8 @@ angular.module('chartDirs')
             
             var assignOptionalProperties = () => {
                 padding = !attributes.padding || isNaN(parseFloat(attributes.padding)) ? 0 :  parseFloat(attributes.padding);
-                orientation = !attributes.orientation || ['horizontal','vertical'].indexOf(attributes.orientation) === -1 ? 'vertical' : attributes.orientation;
-                type = !attributes.type || ['grouped','stacked'].indexOf(attributes.type) === -1 ? 'grouped' : attributes.type;
+                type = !attributes.type || ['linear','cardinal'].indexOf(attributes.type) === -1 ? 'linear' : attributes.type;
+                curveTension = !attributes.curveTension || isNaN(parseFloat(attributes.curveTension)) ? 0.75 :  parseFloat(attributes.curveTension);                
             };
             
             var assignKeyProperty = () => {
@@ -100,22 +99,20 @@ angular.module('chartDirs')
                 attributes.$observe('data',() => {
                     if(attributes.data){
                         updateData();
-                        d3.select(element[0]).barChart(
+                        d3.select(element[0]).lineChart(
                             data,
                             keyProperty,
                             valueProperties,
                             width,
                             height,
-                            padding,
+                            padding,                            
                             type,
-                            orientation
-                        );
+                            curveTension                        );
                     }
                 });
 
             })();
-
+            
         }
-        
     };
 });

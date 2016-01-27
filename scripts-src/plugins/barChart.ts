@@ -126,20 +126,11 @@ d3.selection.prototype.barChart = function(data:{}[],
         return barDatum.color;
     };
     
-
-    (function(){
-        
-        createScales();
-        updateMaxValue();
-        updateValueScale();
-        updateBarGroupScale();
-        updateBarScale();
-
+    var draw = () => {
         barGroupSet = selection.selectAll('.barGroup').data(data);
         barGroupSet.exit().remove();
         barGroupSet.enter().append('g').attr('class','barGroup');
         barGroupSet.attr('transform',barGroupTranslateMapper);
-
         barSet = barGroupSet.selectAll('rect').data(barDataMapper);
         barSet.exit().remove();
         barSet.enter().append('rect');
@@ -149,7 +140,16 @@ d3.selection.prototype.barChart = function(data:{}[],
             .attr('height',heightMapper)
             .attr('width',widthMapper)
             .attr('fill',colorMapper);
+    };
+    
 
+    (function(){
+        createScales();
+        updateMaxValue();
+        updateValueScale();
+        updateBarGroupScale();
+        updateBarScale();
+        draw();
     })();
 
     return selection;

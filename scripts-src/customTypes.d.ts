@@ -25,6 +25,17 @@ interface BarChartAttributes extends ng.IAttributes{
     orientation:string;
 }
 
+interface LineChartAttributes extends ng.IAttributes{
+    data:string;
+    keyConfig:string;
+    valuesConfig:string;
+    width:string;
+    height:string;
+    type:string;
+    curveTension:string;
+    padding:string;
+}
+
 interface IControllerScope extends ng.IScope{
     data:Data[];
     changeValues:() => void;
