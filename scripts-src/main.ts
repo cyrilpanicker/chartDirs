@@ -72,47 +72,46 @@ angular.module('app',['chartDirs'])
 
     };
     
-});
+    $scope.arcChartData = [
+        {
+            department:'support',
+            revenue:0.3
+        }
+        ,{
+            department:'engineering',
+            revenue:0.2
+        }
+        ,{
+            department:'marketing',
+            revenue:0.1
+        }
+        ,{
+            department:'customer-care',
+            revenue:0.4
+        }
+    ];
 
-var data = [
-    {
-        department:'support',
-        revenue:0.3
-    }
-    ,{
-        department:'engineering',
-        revenue:0.2
-    }
-    ,{
-        department:'marketing',
-        revenue:0.1
-    }
-];
-
-var colorConfig = [
-    {
-        key:'support',
-        fillColor:'yellow',
-        strokeColor:'yellow'
-    }
-    ,{
-        key:'engineering',
-        fillColor:'red',
-        strokeColor:'red'
-    }
-    ,{
-        key:'support',
-        fillColor:'blue',
-        strokeColor:'blue'
-    }
-    ,{
-        key:'support',
-        fillColor:'green',
-        strokeColor:'green'
-    }
-];
-
-$(() => {
-    d3.selectAll('.arc')
-        .arcChart(data,'department','revenue',colorConfig,50,45);
+    $scope.arcChartColorConfig = [
+        {
+            key:'support',
+            fillColor:'yellow',
+            strokeColor:'yellow'
+        }
+        ,{
+            key:'engineering',
+            fillColor:'red',
+            strokeColor:'red'
+        }
+        ,{
+            key:'marketing',
+            fillColor:'blue',
+            strokeColor:'blue'
+        }
+        ,{
+            key:'customer-care',
+            fillColor:'green',
+            strokeColor:'green'
+        }
+    ];
+    
 });

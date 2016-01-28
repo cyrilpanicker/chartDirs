@@ -36,11 +36,22 @@ interface LineChartAttributes extends ng.IAttributes{
     padding:string;
 }
 
+interface ArcChartAttributes extends ng.IAttributes{
+    data:string;
+    keyProperty:string;
+    valueProperty:string;
+    width:string;
+    colorConfig:string;
+    innerRadius:string;
+}
+
 interface IControllerScope extends ng.IScope{
     data:Data[];
     changeValues:() => void;
     valuesConfig:{}[];
     keyConfig:{};
+    arcChartData:{}[];
+    arcChartColorConfig:{}[];
 }
 
 interface Data{
@@ -57,4 +68,14 @@ interface KeyConfig{
 interface ValueConfig{
     name:string;
     color:string;
+}
+
+interface arcDatum{
+    angles:number[]
+}
+
+interface colorConfig{
+    key:string;
+    fillColor:string;
+    strokeColor:string;
 }

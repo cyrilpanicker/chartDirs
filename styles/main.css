@@ -10,3 +10,9 @@ bar-chart,[bar-chart]{
 .right{
     float:right;
 }
+
+.arc-chart{
+    display: inline-block;
+    width:442px;
+    height:300px;
+}

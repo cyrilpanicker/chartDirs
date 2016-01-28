@@ -1,15 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="../customTypes.d.ts" />
 
-interface arcDatum{
-    angles:number[]
-}
 
-interface colorConfig{
-    key:string;
-    fillColor:string;
-    strokeColor:string;
-}
 
 d3.selection.prototype.arcChart = function(data:arcDatum[],
     keyProperty:string,valueProperty:string,colorConfig:colorConfig[],
@@ -17,8 +9,8 @@ d3.selection.prototype.arcChart = function(data:arcDatum[],
     
     var selection:d3.Selection<any> = this;
     var arcSet:d3.selection.Update<arcDatum>;
-    var fillColorScale:d3.scale.Ordinal<string,string>
-    var strokeColorScale:d3.scale.Ordinal<string,string>
+    var fillColorScale:d3.scale.Ordinal<string,any>
+    var strokeColorScale:d3.scale.Ordinal<string,any>
     
     var arcGenerator = d3.svg.arc()
         .outerRadius(outerRadius)
@@ -45,7 +37,7 @@ d3.selection.prototype.arcChart = function(data:arcDatum[],
     var arcMapper = (datum:arcDatum) => {
         return arcGenerator
             .startAngle(datum.angles[0])
-            .endAngle(datum.angles[1])(<any>datum);
+            .endAngle(datum.angles[1])(null);
     };
     
     var fillColorMapper = (datum:arcDatum) => {
