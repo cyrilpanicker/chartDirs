@@ -456,6 +456,7 @@ declare module d3 {
         
         barChart(data:{}[],keyProperty:string,valueProperties:ValueConfig[],width:number,height:number,padding:number,type:string,orientation:string):Selection<Datum>;
         lineChart(data:{}[],keyProperty:string,valueProperties:ValueConfig[],width:number,height:number,padding:number,type:string,curveTension:number):Selection<Datum>;
+        arcChart(data:{}[],keyProperty:string,valueProperty:string,colorConfig:{}[],outerRadius:number,innerRadius:number);
 
         /**
          * Retrieve the value of the given attribute for the first node in the selection.
